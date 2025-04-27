@@ -68,3 +68,30 @@ install(TARGETS MusicPlayer
 if(QT_VERSION_MAJOR EQUAL 6)
     qt_finalize_executable(MusicPlayer)
 endif()
+
+
+# Path to VLC headers
+include_directories(${CMAKE_SOURCE_DIR}/vlc/include)
+
+# Path to VLC .dll.a libraries
+link_directories(${CMAKE_SOURCE_DIR}/vlc/windows)
+
+# Set your CLI target
+add_executable(MusicPlayerCLI
+        src/cli_main.cpp
+)
+
+# Link against the actual libraries (.dll.a files)
+target_link_libraries(MusicPlayerCLI PRIVATE
+        Qt${QT_VERSION_MAJOR}::Widgets
+        vlc
+        vlccore
+)
+
+# Copy VLC DLLs to the build folder after building
+add_custom_command(TARGET MusicPlayerCLI POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${CMAKE_SOURCE_DIR}/vlc/windows/libvlc.dll"
+        "${CMAKE_SOURCE_DIR}/vlc/windows/libvlccore.dll"
+        $<TARGET_FILE_DIR:MusicPlayerCLI>
+)
