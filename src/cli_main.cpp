@@ -50,7 +50,7 @@ int main(int argc, char* argv[]) {
 	while (std::cin >> command) {
 		if (command == 'p') {
 			libvlc_media_player_pause(mediaPlayer);
-			std::cout << "[Paused/Resumed]" << std::endl;
+			std::cout << (libvlc_media_player_is_playing(mediaPlayer) ? "Paused" : "Resumed") << std::endl;
 		} else if (command == 'q') {
 			std::cout << "Quitting..." << std::endl;
 			break;
