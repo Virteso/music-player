@@ -2,12 +2,13 @@
 #include <vlc/vlc.h>
 
 int main(int argc, char* argv[]) {
+	const char* filepath;
 	if (argc != 2) {
 		std::cout << "Usage: " << argv[0] << " <audio_file_path>" << std::endl;
-		return 1;
+		filepath = "../test.mp3";
+	} else {
+		filepath = argv[1];
 	}
-
-	const char* filepath = argv[1];
 
 	// Initialize libVLC
 	libvlc_instance_t* vlcInstance = libvlc_new(0, nullptr);
