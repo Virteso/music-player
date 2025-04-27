@@ -1,97 +1,42 @@
+# CMake file for windows CLI build
+
 cmake_minimum_required(VERSION 3.16)
 
 project(MusicPlayer VERSION 0.1 LANGUAGES CXX)
 
-set(CMAKE_AUTOUIC ON)
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTORCC ON)
-
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
-
-set(PROJECT_SOURCES
-        src/main.cpp
-        src/mainwindow.cpp
-        src/mainwindow.h
-        src/mainwindow.ui
-)
-
-if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
-    qt_add_executable(MusicPlayer
-        MANUAL_FINALIZATION
-        ${PROJECT_SOURCES}
-    )
-# Define target properties for Android with Qt 6 as:
-#    set_property(TARGET MusicPlayer APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
-#                 ${CMAKE_CURRENT_SOURCE_DIR}/android)
-# For more information, see https://doc.qt.io/qt-6/qt-add-executable.html#target-creation
-else()
-    if(ANDROID)
-        add_library(MusicPlayer SHARED
-            ${PROJECT_SOURCES}
-        )
-# Define properties for Android with Qt 5 after find_package() calls as:
-#    set(ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/android")
-    else()
-        add_executable(MusicPlayer
-            ${PROJECT_SOURCES}
-        )
-    endif()
-endif()
-
-target_link_libraries(MusicPlayer PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
-
-# Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
-# If you are developing for iOS or macOS you should consider setting an
-# explicit, fixed bundle identifier manually though.
-if(${QT_VERSION} VERSION_LESS 6.1.0)
-  set(BUNDLE_ID_OPTION MACOSX_BUNDLE_GUI_IDENTIFIER com.example.MusicPlayer)
-endif()
-set_target_properties(MusicPlayer PROPERTIES
-    ${BUNDLE_ID_OPTION}
-    MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
-    MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
-    MACOSX_BUNDLE TRUE
-    WIN32_EXECUTABLE TRUE
-)
-
-include(GNUInstallDirs)
-install(TARGETS MusicPlayer
-    BUNDLE DESTINATION .
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-)
-
-if(QT_VERSION_MAJOR EQUAL 6)
-    qt_finalize_executable(MusicPlayer)
-endif()
-
+add_executable(MusicPlayerCLI src/cli_main.cpp)
 
 # Path to VLC headers
-include_directories(${CMAKE_SOURCE_DIR}/vlc/include)
+target_include_directories(MusicPlayerCLI PRIVATE
+        ${CMAKE_SOURCE_DIR}/vlc/windows/include
+)
 
 # Path to VLC .dll.a libraries
-link_directories(${CMAKE_SOURCE_DIR}/vlc/windows)
+target_link_directories(MusicPlayerCLI PRIVATE
+        ${CMAKE_SOURCE_DIR}/vlc/windows)
 
-# Set your CLI target
-add_executable(MusicPlayerCLI
-        src/cli_main.cpp
-)
-
-# Link against the actual libraries (.dll.a files)
+# Link against VLC libraries
 target_link_libraries(MusicPlayerCLI PRIVATE
-        Qt${QT_VERSION_MAJOR}::Widgets
-        vlc
-        vlccore
+        libvlc libvlccore
 )
 
-# Copy VLC DLLs to the build folder after building
+set(VLC_PLUGIN_PATH "${CMAKE_SOURCE_DIR}/vlc/windows/plugins")
+set(ENV{VLC_PLUGIN_PATH} ${VLC_PLUGIN_PATH})
+
+# Copy VLC DLLs
 add_custom_command(TARGET MusicPlayerCLI POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
         "${CMAKE_SOURCE_DIR}/vlc/windows/libvlc.dll"
         "${CMAKE_SOURCE_DIR}/vlc/windows/libvlccore.dll"
         $<TARGET_FILE_DIR:MusicPlayerCLI>
+)
+
+# Copy plugins directory
+add_custom_command(TARGET MusicPlayerCLI POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "${CMAKE_SOURCE_DIR}/vlc/windows/plugins"
+        "$<TARGET_FILE_DIR:MusicPlayerCLI>/plugins"
 )

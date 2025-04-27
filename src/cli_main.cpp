@@ -2,7 +2,7 @@
 #include <vlc/vlc.h>
 
 int main(int argc, char* argv[]) {
-	if (argc < 2) {
+	if (argc != 2) {
 		std::cout << "Usage: " << argv[0] << " <audio_file_path>" << std::endl;
 		return 1;
 	}
@@ -26,7 +26,7 @@ int main(int argc, char* argv[]) {
 
 	// Create a media player
 	libvlc_media_player_t* mediaPlayer = libvlc_media_player_new_from_media(vlcInstance, media);
-	libvlc_media_release(media); // media object is no longer needed
+	libvlc_media_release(media);
 
 	if (!mediaPlayer) {
 		std::cerr << "Failed to create media player." << std::endl;
