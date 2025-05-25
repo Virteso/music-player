@@ -2,13 +2,17 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QTimer>
 #include <vlc/vlc.h>
 
 QT_BEGIN_NAMESPACE
-namespace Ui { class MainWindow; }
+namespace Ui {
+class MainWindow;
+}
 QT_END_NAMESPACE
 
-class MainWindow : public QMainWindow {
+class MainWindow : public QMainWindow
+{
     Q_OBJECT
 private:
     Ui::MainWindow *ui;
@@ -16,10 +20,18 @@ private:
     libvlc_instance_t *vlcInstance = nullptr;
     libvlc_media_player_t *mediaPlayer = nullptr;
     libvlc_media_t *media = nullptr;
+    QTimer *updateTimer = nullptr;
+    bool isPlaying = false;
+
+    void updateProgressBar();
+    void updateVolume(int volume);
 
 private slots:
     void playMedia();
     void pauseMedia();
+    void stopMedia();
+    void onProgressBarSliderMoved(int position);
+    void onVolumeSliderMoved(int position);
 
 public:
     MainWindow(QWidget *parent = nullptr);
