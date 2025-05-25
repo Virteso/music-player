@@ -24,8 +24,8 @@ private:
     bool isPlaying = false;
     bool isSeeking = false;
 
-    void updateProgressBar();
-    void updateVolume(int volume);
+    void updateProgressBar() const;
+    void updateVolume(int volume) const;
     void updateStatus(const QString &status) const;
     static QString formatTime(libvlc_time_t time);
 
@@ -33,10 +33,10 @@ private slots:
     void playMedia();
     void pauseMedia();
     void stopMedia();
-    void onProgressBarSliderMoved(int position);
+    void onProgressBarSliderMoved(int position) const;
     void onProgressBarSliderPressed();
     void onProgressBarSliderReleased();
-    void onVolumeSliderMoved(int position);
+    void onVolumeSliderMoved(int position) const;
     void browseFile();
 
 public:

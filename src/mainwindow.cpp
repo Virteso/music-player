@@ -147,20 +147,16 @@ void MainWindow::stopMedia()
     updateStatus("Stopped");
 }
 
-void MainWindow::updateProgressBar()
+void MainWindow::updateProgressBar() const
 {
     if (!mediaPlayer || isSeeking) return;
 
-    libvlc_time_t length = libvlc_media_player_get_length(mediaPlayer);
-    libvlc_time_t time = libvlc_media_player_get_time(mediaPlayer);
+    const libvlc_time_t length = libvlc_media_player_get_length(mediaPlayer);
+    const libvlc_time_t time = libvlc_media_player_get_time(mediaPlayer);
 
     if (length > 0) {
-        int position = time / length * 100;
-        ui->progressBar->setValue(position);
-        
-        // Update status with current time
-        QString timeStr = formatTime(time) + " / " + formatTime(length);
-        ui->statusLabel->setText(timeStr);
+        ui->progressBar->setValue(time * 100.0f / length);
+        ui->statusLabel->setText(formatTime(time) + " / " + formatTime(length));
     }
 }
 
@@ -176,29 +172,33 @@ void MainWindow::onProgressBarSliderReleased()
     if (isPlaying) {
         updateTimer->start(1000);
     }
-    onProgressBarSliderMoved(ui->progressBar->value());
+
+    const libvlc_time_t length = libvlc_media_player_get_length(mediaPlayer);
+    const libvlc_time_t newTime = ui->progressBar->value() * length / 100.0f;
+    libvlc_media_player_set_time(mediaPlayer, newTime, false);
+
+    ui->statusLabel->setText(formatTime(newTime) + " / " + formatTime(length));
 }
 
-void MainWindow::onProgressBarSliderMoved(int position)
+void MainWindow::onProgressBarSliderMoved(const int position) const
 {
     if (!mediaPlayer || !media) return;
 
-    libvlc_time_t length = libvlc_media_player_get_length(mediaPlayer);
-    libvlc_time_t newTime = (position * length) / 100;
-    libvlc_media_player_set_time(mediaPlayer, newTime, false);
+    const libvlc_time_t length = libvlc_media_player_get_length(mediaPlayer);
+    const libvlc_time_t newTime = position * length / 100.0f;
+    //libvlc_media_player_set_time(mediaPlayer, newTime, false);
     
     // Update time display even while seeking
-    QString timeStr = formatTime(newTime) + " / " + formatTime(length);
-    ui->statusLabel->setText(timeStr);
+    ui->statusLabel->setText(formatTime(newTime) + " / " + formatTime(length));
 }
 
-void MainWindow::updateVolume(int volume)
+void MainWindow::updateVolume(const int volume) const
 {
     if (!mediaPlayer) return;
     libvlc_audio_set_volume(mediaPlayer, volume);
 }
 
-void MainWindow::onVolumeSliderMoved(int position)
+void MainWindow::onVolumeSliderMoved(int position) const
 {
     updateVolume(position);
 }
@@ -219,10 +219,10 @@ void MainWindow::updateStatus(const QString &status) const
     ui->statusLabel->setText(status);
 }
 
-QString MainWindow::formatTime(libvlc_time_t time)
+QString MainWindow::formatTime(const libvlc_time_t time)
 {
     int seconds = time / 1000;
     int minutes = seconds / 60;
-    seconds = seconds % 60;
+    seconds %= 60;
     return QString("%1:%2").arg(minutes, 2, 10, QChar('0')).arg(seconds, 2, 10, QChar('0'));
 }
