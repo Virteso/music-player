@@ -1,7 +1,0 @@
-music-player - Kristjan Karl Pevgonen, Rasmus Lille
-
-Qt-põhine muusikamängija, mis toetab MP3, WAV, OGG, OPUS, FLAC ja mitmeid teisi vorminguid ning sisaldab esitusloendite haldust, kaustades sirvimist ja põhilisi taasesituse juhtnuppe.
-
-Käivitamine: Koosta projekt CMake’i ja Qt 6.9.0 abil, seejärel käivita loodud käivitatav fail. Rakendus on iseseisev ja sisaldab kõiki vajalikke VLC teeke.
-
-Eeldatav tulemus: Töötav muusikamängija kasutajaliidesega, mis võimaldab esitada helifaile, hallata esitusloendeid ning juhtida taasesitust (esitamine, paus, peatamine, kerimine, helitugevus).
