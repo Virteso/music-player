@@ -26,6 +26,8 @@ set(PROJECT_SOURCES
         src/mainwindow.cpp
         src/mainwindow.h
         src/mainwindow.ui
+        src/playlist.cpp
+        src/playlist.h
 )
 
 add_executable(MusicPlayer WIN32

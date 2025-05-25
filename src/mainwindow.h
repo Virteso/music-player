@@ -3,7 +3,10 @@
 
 #include <QMainWindow>
 #include <QTimer>
+#include <QListWidget>
 #include <vlc/vlc.h>
+#include <vlc/libvlc_events.h>
+#include "playlist.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -23,11 +26,14 @@ private:
     QTimer *updateTimer = nullptr;
     bool isPlaying = false;
     bool isSeeking = false;
+    Playlist playlist;
 
     void updateProgressBar() const;
     void updateVolume(int volume) const;
     void updateStatus(const QString &status) const;
     static QString formatTime(libvlc_time_t time);
+    void loadFolder(const QString& folderPath);
+    void playCurrentTrack();
 
 private slots:
     void playMedia();
@@ -38,6 +44,9 @@ private slots:
     void onProgressBarSliderReleased();
     void onVolumeSliderMoved(int position) const;
     void browseFile();
+    void browseFolder();
+    void onPlaylistItemDoubleClicked(int row);
+    void onMediaEnd();
 
 public:
     MainWindow(QWidget *parent = nullptr);
