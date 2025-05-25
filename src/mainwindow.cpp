@@ -15,7 +15,7 @@ MainWindow::MainWindow(QWidget *parent)
     const char *vlc_args[] = {
         "--quiet",
         "--no-xlib",
-        "--verbose=2",  // Add verbose logging
+        "--verbose=2",
         "--file-logging",
         "--logfile=vlc-log.txt"
     };
@@ -109,15 +109,14 @@ void MainWindow::playMedia()
     libvlc_media_player_set_media(mediaPlayer, media);
     
     // Start playback
-    int result = libvlc_media_player_play(mediaPlayer);
-    if (result == -1) {
+    if (libvlc_media_player_play(mediaPlayer) == -1) {
         qDebug() << "Failed to start playback";
         updateStatus("Error: Failed to start playback");
         return;
     }
 
     isPlaying = true;
-    updateTimer->start(100); // Update progress every 100ms
+    updateTimer->start(1000);
     updateStatus("Playing");
 }
 
@@ -131,7 +130,7 @@ void MainWindow::pauseMedia()
         updateStatus("Paused");
     } else {
         libvlc_media_player_play(mediaPlayer);
-        updateTimer->start(100);
+        updateTimer->start(1000);
         updateStatus("Playing");
     }
     isPlaying = !isPlaying;
@@ -175,7 +174,7 @@ void MainWindow::onProgressBarSliderReleased()
 {
     isSeeking = false;
     if (isPlaying) {
-        updateTimer->start(100);
+        updateTimer->start(1000);
     }
     onProgressBarSliderMoved(ui->progressBar->value());
 }
@@ -208,7 +207,7 @@ void MainWindow::browseFile()
 {
     QString fileName = QFileDialog::getOpenFileName(this,
         tr("Open Audio File"), "",
-        tr("Audio Files (*.mp3 *.wav *.ogg *.flac);;All Files (*)"));
+        tr("Audio Files (*.mp3 *.wav *.ogg *.flac *.oga);;All Files (*)"));
     
     if (!fileName.isEmpty()) {
         ui->lineEditPath->setText(fileName);
