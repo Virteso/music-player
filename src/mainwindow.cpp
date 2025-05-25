@@ -19,7 +19,7 @@ MainWindow::MainWindow(QWidget *parent)
         "--file-logging",
         "--logfile=vlc-log.txt"
     };
-    vlcInstance = libvlc_new(sizeof(vlc_args) / sizeof(vlc_args[0]), vlc_args);
+    vlcInstance = libvlc_new(std::size(vlc_args), vlc_args);
     if (!vlcInstance) {
         qDebug() << "Failed to create VLC instance";
         return;
@@ -155,7 +155,7 @@ void MainWindow::updateProgressBar()
     libvlc_time_t time = libvlc_media_player_get_time(mediaPlayer);
 
     if (length > 0) {
-        int position = (time * 100) / length;
+        int position = time / length * 100;
         ui->progressBar->setValue(position);
         
         // Update status with current time
@@ -214,7 +214,7 @@ void MainWindow::browseFile()
     }
 }
 
-void MainWindow::updateStatus(const QString &status)
+void MainWindow::updateStatus(const QString &status) const
 {
     ui->statusLabel->setText(status);
 }

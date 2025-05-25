@@ -26,8 +26,8 @@ private:
 
     void updateProgressBar();
     void updateVolume(int volume);
-    void updateStatus(const QString &status);
-    QString formatTime(libvlc_time_t time);
+    void updateStatus(const QString &status) const;
+    static QString formatTime(libvlc_time_t time);
 
 private slots:
     void playMedia();
