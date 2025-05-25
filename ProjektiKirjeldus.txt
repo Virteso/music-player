@@ -4,4 +4,4 @@ Qt-põhine muusikamängija, mis toetab MP3, WAV, OGG ja FLAC vorminguid ning sis
 
 Käivitamine: Koosta projekt CMake’i ja Qt 6.9.0 abil, seejärel käivita loodud käivitatav fail. Rakendus on iseseisev ja sisaldab kõiki vajalikke VLC teeke.
 
-Eeldatav tulemus: Töötav muusikamängija kaasaegse kasutajaliidesega, mis võimaldab esitada helifaile, hallata esitusloendeid ning juhtida taasesitust (esitamine, paus, peatamine, kerimine, helitugevus).
+Eeldatav tulemus: Töötav muusikamängija kasutajaliidesega, mis võimaldab esitada helifaile, hallata esitusloendeid ning juhtida taasesitust (esitamine, paus, peatamine, kerimine, helitugevus).
