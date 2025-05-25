@@ -38,9 +38,9 @@ MainWindow::MainWindow(QWidget *parent)
     updateTimer->start(1000);
 
     // Connect buttons
-    connect(ui->buttonPlay, &QPushButton::clicked, this, &MainWindow::playMedia);
+    connect(ui->buttonPlay, &QPushButton::clicked, this, &MainWindow::loop);
     connect(ui->buttonPause, &QPushButton::clicked, this, &MainWindow::pauseMedia);
-    connect(ui->buttonStop, &QPushButton::clicked, this, &MainWindow::stopMedia);
+    connect(ui->buttonStop, &QPushButton::clicked, this, &MainWindow::shuffle);
     connect(ui->buttonBrowse, &QPushButton::clicked, this, &MainWindow::browseFile);
     connect(ui->buttonBrowseFolder, &QPushButton::clicked, this, &MainWindow::browseFolder);
     connect(ui->playlistWidget, &QListWidget::itemDoubleClicked, this, [this](QListWidgetItem* item) {
@@ -64,6 +64,8 @@ MainWindow::MainWindow(QWidget *parent)
     libvlc_event_attach(eventManager, libvlc_MediaPlayerStopped, [](const libvlc_event_t*, void* data) {
         QMetaObject::invokeMethod(static_cast<MainWindow*>(data), "onMediaEnd", Qt::QueuedConnection);
     }, this);
+
+    filters << "*.mp3" << "*.wav" << "*.ogg" << "*.flac" << "*.opus" << "*.aiff" << "*.aac" << "*.m4a" << "*.mp4" << "*.ape" << "*.oga";
 }
 
 MainWindow::~MainWindow()
@@ -85,7 +87,7 @@ void MainWindow::playMedia()
         return;
     }
 
-    QString currentFile = playlist.getCurrentFile();
+    QString currentFile = playlist.getCurrentFile().absoluteFilePath();
     qDebug() << "Attempting to play file:" << currentFile;
     
     // Stop current playback if any
@@ -148,13 +150,20 @@ void MainWindow::pauseMedia()
     isPlaying = !isPlaying;
 }
 
-void MainWindow::stopMedia()
+void MainWindow::shuffle()
 {
-    libvlc_media_player_stop_async(mediaPlayer);
-    updateTimer->stop();  // Stop the timer
-    isPlaying = false;
-    ui->progressBar->setValue(0);
-    updateStatus("Stopped");
+    playlist.shuffle();
+    ui->playlistWidget->clear();
+
+    for (int i = 0; i < playlist.getFileCount(); ++i)
+    {
+        ui->playlistWidget->addItem(playlist.getFileAt(i).fileName());
+    }
+}
+
+void MainWindow::loop()
+{
+    playlist.setLoop(!playlist.getLoop());
 }
 
 void MainWindow::updateProgressBar() const
@@ -212,11 +221,11 @@ void MainWindow::onVolumeSliderMoved(int position) const
 
 void MainWindow::browseFile()
 {
-    QString filePath = QFileDialog::getOpenFileName(this, "Open Media File", "", "Media Files (*.mp3 *.wav *.ogg *.flac)");
+    QString filePath = QFileDialog::getOpenFileName(this, "Open Media File", "", "Media Files (*.mp3 *.wav *.ogg *.flac *.opus *.aiff *.aac *.m4a *.mp4 *.ape *.oga)");
     if (!filePath.isEmpty()) {
         ui->lineEditPath->setText(filePath);
         playlist.clear();
-        playlist.addFile(filePath);
+        playlist.addFile(QFileInfo(filePath));
         ui->playlistWidget->clear();
         ui->playlistWidget->addItem(QFileInfo(filePath).fileName());
         playMedia(); // Automatically start playing the selected file
@@ -234,8 +243,6 @@ void MainWindow::browseFolder()
 void MainWindow::loadFolder(const QString& folderPath)
 {
     QDir dir(folderPath);
-    QStringList filters;
-    filters << "*.mp3" << "*.wav" << "*.ogg" << "*.flac";
     dir.setNameFilters(filters);
 
     playlist.clear();
@@ -243,7 +250,7 @@ void MainWindow::loadFolder(const QString& folderPath)
 
     QFileInfoList fileList = dir.entryInfoList();
     for (const QFileInfo& fileInfo : fileList) {
-        playlist.addFile(fileInfo.absoluteFilePath());
+        playlist.addFile(fileInfo);
         ui->playlistWidget->addItem(fileInfo.fileName());
     }
 
@@ -264,15 +271,17 @@ void MainWindow::onPlaylistItemDoubleClicked(int row)
 void MainWindow::onMediaEnd()
 {
     if (isPlaying) {  // Only proceed to next track if we're actually playing
-        playlist.next();
-        playMedia();
+        if (playlist.next())
+        {
+            playMedia();
+        }
     }
 }
 
 void MainWindow::playCurrentTrack()
 {
     if (!playlist.isEmpty()) {
-        QString currentFile = playlist.getCurrentFile();
+        QString currentFile = playlist.getCurrentFile().absoluteFilePath();
         if (media) {
             libvlc_media_release(media);
         }

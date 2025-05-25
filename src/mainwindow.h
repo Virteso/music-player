@@ -27,6 +27,7 @@ private:
     bool isPlaying = false;
     bool isSeeking = false;
     Playlist playlist;
+    QStringList filters;
 
     void updateProgressBar() const;
     void updateVolume(int volume) const;
@@ -38,7 +39,8 @@ private:
 private slots:
     void playMedia();
     void pauseMedia();
-    void stopMedia();
+    void shuffle();
+    void loop();
     void onProgressBarSliderMoved(int position) const;
     void onProgressBarSliderPressed();
     void onProgressBarSliderReleased();

@@ -1,10 +1,13 @@
 #include "playlist.h"
 
-Playlist::Playlist() : currentIndex(-1) {}
+Playlist::Playlist() : currentIndex(-1)
+{
+    rng = std::mt19937(std::chrono::high_resolution_clock::now().time_since_epoch().count());
+}
 
 Playlist::~Playlist() = default;
 
-void Playlist::addFile(const QString& filePath) {
+void Playlist::addFile(const QFileInfo& filePath) {
     files.append(filePath);
     if (currentIndex == -1) {
         currentIndex = 0;
@@ -25,18 +28,18 @@ void Playlist::clear() {
     currentIndex = -1;
 }
 
-QString Playlist::getCurrentFile() const {
+QFileInfo Playlist::getCurrentFile() {
     if (currentIndex >= 0 && currentIndex < files.size()) {
         return files[currentIndex];
     }
-    return QString();
+    return QFileInfo();
 }
 
-QString Playlist::getFileAt(int index) const {
+QFileInfo Playlist::getFileAt(int index) {
     if (index >= 0 && index < files.size()) {
         return files[index];
     }
-    return QString();
+    return QFileInfo();
 }
 
 int Playlist::getCurrentIndex() const {
@@ -53,10 +56,21 @@ int Playlist::getFileCount() const {
     return files.size();
 }
 
-void Playlist::next() {
+bool Playlist::next() {
     if (!files.isEmpty()) {
-        currentIndex = (currentIndex + 1) % files.size();
+        if (loop)
+        {
+            currentIndex = (currentIndex + 1) % files.size();
+            return true;
+        }
+        ++currentIndex;
+        if (currentIndex >= files.size())
+        {
+            return false;
+        }
+        return true;
     }
+    return false;
 }
 
 void Playlist::previous() {
@@ -67,4 +81,19 @@ void Playlist::previous() {
 
 bool Playlist::isEmpty() const {
     return files.isEmpty();
-} 
+}
+
+void Playlist::setLoop(bool l)
+{
+    loop = l;
+}
+
+bool Playlist::getLoop() const
+{
+    return loop;
+}
+
+void Playlist::shuffle()
+{
+    std::ranges::shuffle(files, rng);
+}
