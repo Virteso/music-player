@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>200</height>
+    <height>250</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,12 +16,44 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
-     <widget class="QLineEdit" name="lineEditPath"/>
+     <layout class="QHBoxLayout" name="fileLayout">
+      <item>
+       <widget class="QLineEdit" name="lineEditPath"/>
+      </item>
+      <item>
+       <widget class="QPushButton" name="buttonBrowse">
+        <property name="text">
+         <string>Browse...</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </item>
     <item>
-     <widget class="QSlider" name="progressBar">
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
+     <layout class="QVBoxLayout" name="progressLayout">
+      <item>
+       <widget class="QLabel" name="progressLabel">
+        <property name="text">
+         <string>Progress:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QSlider" name="progressBar">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <widget class="QLabel" name="statusLabel">
+      <property name="text">
+       <string>Ready</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
       </property>
      </widget>
     </item>
@@ -37,7 +69,7 @@
       <item>
        <widget class="QPushButton" name="buttonPause">
         <property name="text">
-         <string>Pause</string>
+         <string>Pause/Resume</string>
         </property>
        </widget>
       </item>
